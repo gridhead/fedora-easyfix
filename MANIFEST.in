@@ -1,0 +1,2 @@
+recursive-include src/fedora_easyfix/templates *
+recursive-include src/fedora_easyfix/static *
