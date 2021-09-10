@@ -22,6 +22,7 @@
 
 from json import dumps
 from sys import exit
+from time import time
 
 from dotenv import dotenv_values
 from fedora_easyfix.__init__ import __version__
@@ -75,6 +76,7 @@ def mainfunc():
                     pagure_base_url,
                     pagure_api_key
                 ).return_repository_collection()
+            ticket_collection["collection_updated_at"] = time()
             write_index_to_local_json(ticket_collection)
         else:
             statdcrt.failure("Could not index tickets")

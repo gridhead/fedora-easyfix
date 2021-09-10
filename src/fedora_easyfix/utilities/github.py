@@ -72,6 +72,7 @@ class GitHubRepositories():
         respobjc = httpobjc.request(
             "GET",
             api_project_endpoint,
+            headers=self.headers,
         )
         respdict = loads(respobjc.data)
         ticket_dict = {
