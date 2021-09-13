@@ -14,6 +14,7 @@ A collection of self-contained and well-documented issues for newcomers to start
    GITHUB_API_KEY = "<your-personal-access-token-here>"
    PAGURE_API_KEY = ""
    GITLAB_API_KEY = ""
+   RPLIST_URL = "<remote-http-repolist-file-location-in-yaml-format>"
    ```
 7. Run `index-easyfix-issues` being in the same directory to index the Easyfix relevant issues from a variety of Git forges.
 8. Run `start-easyfix-server -p 9696 -4` to start the Easyfix server.

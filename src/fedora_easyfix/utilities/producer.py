@@ -30,71 +30,93 @@ from fedora_easyfix.models.github import GitHubRepositories
 from fedora_easyfix.models.gitlab import GitLabRepositories
 from fedora_easyfix.models.pagure import PagureRepositories
 from fedora_easyfix.utilities.composer import StatusDecorator
+from urllib3 import PoolManager
 from yaml import CLoader, load
 
+httpobjc = PoolManager()
 statdcrt = StatusDecorator()
 
 
-def write_index_to_local_json(ticket_collection):
-    try:
-        tickdata = dumps(ticket_collection, indent=4)
-        with open("tickdata.json", "w") as tickfile:
-            tickfile.write(tickdata)
-        statdcrt.section("Indexing complete!")
-    except Exception as expt:
-        statdcrt.failure("Could not index tickets")
-        statdcrt.general("Please check if appropriate permissions are available to write in the directory")
-        exit()
+class Producer(object):
+    def __init__(self):
+        self.envrvars = dotenv_values(".env")
+        self.github_username = self.envrvars["GITHUB_USERNAME"]
+        self.github_api_key = self.envrvars["GITHUB_API_KEY"]
+        self.pagure_api_key = self.envrvars["PAGURE_API_KEY"]
+        self.gitlab_api_key = self.envrvars["GITLAB_API_KEY"]
+        self.rplist_url = self.envrvars["RPLIST_URL"]
+        self.yamldict = load(httpobjc.request("GET", self.rplist_url).data.decode(), Loader=CLoader)
+        self.ticket_collection = {}
 
-
-def mainfunc():
-    statdcrt.section("Indexing tickets...")
-    try:
-        envrvars = dotenv_values(".env")
-        github_username = envrvars["GITHUB_USERNAME"]
-        github_api_key = envrvars["GITHUB_API_KEY"]
-        pagure_api_key = envrvars["PAGURE_API_KEY"]
-        gitlab_api_key = envrvars["GITLAB_API_KEY"]
-        with open("repolist.yml", "r") as yamlfile:
-            yamldict = load(yamlfile.read(), Loader=CLoader)
-        if yamldict["repolist_version"] == __version__:
-            ticket_collection = {}
-            if "github" in yamldict["forges"].keys():
-                github_repository_list = yamldict["forges"]["github"]["repositories"]
-                github_base_url = yamldict["forges"]["github"]["url"]
-                statdcrt.warning("Found %s repositories on GitHub" %len(yamldict["forges"]["github"]["repositories"].keys()))
-                ticket_collection["github"] = GitHubRepositories(
-                    github_repository_list,
-                    github_base_url,
-                    github_api_key,
-                    github_username
-                ).return_repository_collection()
-            if "pagure" in yamldict["forges"].keys():
-                pagure_repository_list = yamldict["forges"]["pagure"]["repositories"]
-                pagure_base_url = yamldict["forges"]["pagure"]["url"]
-                statdcrt.warning("Found %s repositories on Pagure" %len(yamldict["forges"]["pagure"]["repositories"].keys()))
-                ticket_collection["pagure"] = PagureRepositories(
-                    pagure_repository_list,
-                    pagure_base_url,
-                    pagure_api_key
-                ).return_repository_collection()
-            if "gitlab" in yamldict["forges"].keys():
-                gitlab_repository_list = yamldict["forges"]["gitlab"]["repositories"]
-                gitlab_base_url = yamldict["forges"]["gitlab"]["url"]
-                statdcrt.warning("Found %s repositories on GitLab" %len(yamldict["forges"]["gitlab"]["repositories"].keys()))
-                ticket_collection["gitlab"] = GitLabRepositories(
-                    gitlab_repository_list,
-                    gitlab_base_url,
-                    gitlab_api_key
-                ).return_repository_collection()
-            ticket_collection["collection_updated_at"] = time()
-            write_index_to_local_json(ticket_collection)
+    def check_repolist_version_and_start(self):
+        if self.yamldict["repolist_version"] == __version__:
+            self.populate_ticket_collection()
+            self.ticket_collection["collection_updated_at"] = time()
+            self.write_index_to_local_json()
         else:
             statdcrt.failure("Could not index tickets")
             statdcrt.general("Repolist version does not correspond with the Easyfix version")
+            exit()
+
+    def populate_ticket_collection(self):
+        statdcrt.section("Indexing tickets...")
+        if "github" in self.yamldict["forges"].keys():
+            github_repository_list = self.yamldict["forges"]["github"]["repositories"]
+            github_base_url = self.yamldict["forges"]["github"]["url"]
+            statdcrt.warning(
+                "Found %s repositories on GitHub" %
+                len(self.yamldict["forges"]["github"]["repositories"].keys())
+            )
+            self.ticket_collection["github"] = GitHubRepositories(
+                github_repository_list,
+                github_base_url,
+                self.github_api_key,
+                self.github_username
+            ).return_repository_collection()
+        if "pagure" in self.yamldict["forges"].keys():
+            pagure_repository_list = self.yamldict["forges"]["pagure"]["repositories"]
+            pagure_base_url = self.yamldict["forges"]["pagure"]["url"]
+            statdcrt.warning(
+                "Found %s repositories on Pagure" %
+                len(self.yamldict["forges"]["pagure"]["repositories"].keys())
+            )
+            self.ticket_collection["pagure"] = PagureRepositories(
+                pagure_repository_list,
+                pagure_base_url,
+                self.pagure_api_key
+            ).return_repository_collection()
+        if "gitlab" in self.yamldict["forges"].keys():
+            gitlab_repository_list = self.yamldict["forges"]["gitlab"]["repositories"]
+            gitlab_base_url = self.yamldict["forges"]["gitlab"]["url"]
+            statdcrt.warning(
+                "Found %s repositories on GitLab" %
+                len(self.yamldict["forges"]["gitlab"]["repositories"].keys())
+            )
+            self.ticket_collection["gitlab"] = GitLabRepositories(
+                gitlab_repository_list,
+                gitlab_base_url,
+                self.gitlab_api_key
+            ).return_repository_collection()
+
+    def write_index_to_local_json(self):
+        try:
+            tickdata = dumps(self.ticket_collection, indent=4)
+            with open("tickdata.json", "w") as tickfile:
+                tickfile.write(tickdata)
+            statdcrt.section("Indexing complete!")
+        except Exception as expt:
+            statdcrt.failure("Could not index tickets")
+            statdcrt.general("Please check if appropriate permissions are available to write in the directory")
+            exit()
+
+
+def mainfunc():
+    try:
+        prodobjc = Producer()
+        prodobjc.check_repolist_version_and_start()
     except Exception as expt:
         statdcrt.failure("Could not index tickets")
-        statdcrt.general("Please check if the repolist.yml and .env are present in the same directory")
+        statdcrt.general("Please check if the environment variables are configured properly")
         exit()
 
 
