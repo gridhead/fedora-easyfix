@@ -33,162 +33,169 @@ forges:
   pagure:
     url: https://pagure.io/
     repositories:
-        elections:
-          label: easyfix
-          contact: bcotton
-        fedocal:
-          label: easyfix
-          contact: pingou
-        fedora-budget:
-          label: easyfix
-          contact: riecatnor
-        fedora-business-cards:
-          label: easyfix
-          contact: bex
-        fedora-ci/general:
-          label: easyfix
-          contact: bookwar
-        fedora-commops:
-          label: good first issue
-          contact: bt0dotninja
-        fedora-diversity:
-          label: easyfix
-          contact: jonatoni
-        fedora-docs/docs-fp-o:
-          label: easyfix
-          contact: pbokoc
-        fedora-docs/quick-docs:
-          label: good first issue
-          contact: ankursinha
-        fedora-docs/system-administrators:
-          label: easyfix
-          contact: pbokoc
-        fedora-docs/release-notes:
-          label: easyfix
-          contact: pbokoc
-        fedora-docs/install-guide:
-          label: easyfix
-          contact: pbokoc
-        fedora-infrastructure:
-          label: easyfix
-          contact: kevin
-        fedora-join/Fedora-Join:
-          label: easyfix
-          contact: ankursinha
-        fedora-marketing:
-          label: easyfix
-          contact: x3mboy
-        fedora-qa:
-          label: easyfix
-          contact: adamwill
-        fedora-qa/blockerbugs:
-          label: easyfix
-          contact: tflink
-        fedora-qa/check-compose:
-          label: easyfix
-          contact: adamwill
-        fedora-qa/createhdds:
-          label: easyfix
-          contact: adamwill
-        fedora-qa/fedora_openqa:
-          label: easyfix
-          contact: adamwill
-        fedora-qa/openqa_docker:
-          label: easyfix
-          contact: adamwill
-        fedora-qa/os-auotinst-distri-fedora:
-          label: easyfix
-          contact: adamwill
-        fedora-qa/qa-docs:
-          label: easyfix
-          contact: sumantrom
-        fedora-qa/qa-misc:
-          label: easyfix
-          contact: kparal
-        fedora-qa/qa-stats:
-          label: easyfix
-          contact: kparal
-        fedora-qa/relvalconsumer:
-          label: easyfix
-          contact: adamwill
-        fedora-qa/testdays-web:
-          label: easyfix
-          contact: jskladan
-        fedora-qa/uf-monitor:
-          label: easyfix
-          contact: tflink
-        fedora-websites:
-          label: easyfix
-          contact: t0xic0der
-        fedoramagazine-images:
-          label: easyfix
-          contact: ryanlerch
-        freeipa:
-          label: easyfix
-          contact: mkosek
-        ipsilon:
-          label: easyfix
-          contact: puiterwijk
-        mindshare:
-          label: good first issue
-          contact: riecatnor
-        neuro-sig/NeuroFedora:
-          label: good first issue
-          contact: ankursinha
-        neuro-sig/documentation:
-          label: good first issue
-          contact: ankursinha
-        pagure:
-          label: easyfix
-          contact: pingou
-        pungi:
-          label: easy
-          contact: lsedlar
-        releng:
-          label: easyfix
-          contact: mohanboddu
-        SSSD/sssd:
-          label: easyfix
-          contact: jhrozek
-        taskotron/base_images:
-          label: easyfix
-          contact: jskladan
-        taskotron:
-          label: easyfix
-          contact: kparal
-        taskotron/execdb:
-          label: easyfix
-          contact: jskladan
-        taskotron/libtaskotron:
-          label: easyfix
-          contact: kparal
-        taskotron/resultsdb_api:
-          label: easyfix
-          contact: jskladaan
-        taskotron/resultsdb_conventions:
-          label: easyfix
-          contact: adamwill
-        taskotron/resultsdb:
-          label: easyfix
-          contact: jskladan
-        taskotron/taskotron-docker:
-          label: easyfix
-          contact: jskladan
-        taskotron/taskotron-trigger:
-          label: easyfix
-          contact: jskladan
-        taskotron/task-rpmdeplint:
-          label: easyfix
-          contact: kparal
-        taskotron/rpmgrill:
-          label: easyfix
-          contact: kparal
-        taskotron/task-taskotron-ci:
-          label: easyfix
-          contact: jskladan
-        taskotron/vault:
-          label: easyfix
-          contact: jskladan
-        testcloud:
-          label: easyfix
-          contact: lbrabec
+      elections:
+        label: easyfix
+        contact: bcotton
+      fedocal:
+        label: easyfix
+        contact: pingou
+      fedora-budget:
+        label: easyfix
+        contact: riecatnor
+      fedora-business-cards:
+        label: easyfix
+        contact: bex
+      fedora-ci/general:
+        label: easyfix
+        contact: bookwar
+      fedora-commops:
+        label: good first issue
+        contact: bt0dotninja
+      fedora-diversity:
+        label: easyfix
+        contact: jonatoni
+      fedora-docs/docs-fp-o:
+        label: easyfix
+        contact: pbokoc
+      fedora-docs/quick-docs:
+        label: good first issue
+        contact: ankursinha
+      fedora-docs/system-administrators:
+        label: easyfix
+        contact: pbokoc
+      fedora-docs/release-notes:
+        label: easyfix
+        contact: pbokoc
+      fedora-docs/install-guide:
+        label: easyfix
+        contact: pbokoc
+      fedora-infrastructure:
+        label: easyfix
+        contact: kevin
+      fedora-join/Fedora-Join:
+        label: easyfix
+        contact: ankursinha
+      fedora-marketing:
+        label: easyfix
+        contact: x3mboy
+      fedora-qa:
+        label: easyfix
+        contact: adamwill
+      fedora-qa/blockerbugs:
+        label: easyfix
+        contact: tflink
+      fedora-qa/check-compose:
+        label: easyfix
+        contact: adamwill
+      fedora-qa/createhdds:
+        label: easyfix
+        contact: adamwill
+      fedora-qa/fedora_openqa:
+        label: easyfix
+        contact: adamwill
+      fedora-qa/openqa_docker:
+        label: easyfix
+        contact: adamwill
+      fedora-qa/os-auotinst-distri-fedora:
+        label: easyfix
+        contact: adamwill
+      fedora-qa/qa-docs:
+        label: easyfix
+        contact: sumantrom
+      fedora-qa/qa-misc:
+        label: easyfix
+        contact: kparal
+      fedora-qa/qa-stats:
+        label: easyfix
+        contact: kparal
+      fedora-qa/relvalconsumer:
+        label: easyfix
+        contact: adamwill
+      fedora-qa/testdays-web:
+        label: easyfix
+        contact: jskladan
+      fedora-qa/uf-monitor:
+        label: easyfix
+        contact: tflink
+      fedora-websites:
+        label: easyfix
+        contact: t0xic0der
+      fedoramagazine-images:
+        label: easyfix
+        contact: ryanlerch
+      freeipa:
+        label: easyfix
+        contact: mkosek
+      ipsilon:
+        label: easyfix
+        contact: puiterwijk
+      mindshare:
+        label: good first issue
+        contact: riecatnor
+      neuro-sig/NeuroFedora:
+        label: good first issue
+        contact: ankursinha
+      neuro-sig/documentation:
+        label: good first issue
+        contact: ankursinha
+      pagure:
+        label: easyfix
+        contact: pingou
+      pungi:
+        label: easy
+        contact: lsedlar
+      releng:
+        label: easyfix
+        contact: mohanboddu
+      SSSD/sssd:
+        label: easyfix
+        contact: jhrozek
+      taskotron/base_images:
+        label: easyfix
+        contact: jskladan
+      taskotron:
+        label: easyfix
+        contact: kparal
+      taskotron/execdb:
+        label: easyfix
+        contact: jskladan
+      taskotron/libtaskotron:
+        label: easyfix
+        contact: kparal
+      taskotron/resultsdb_api:
+        label: easyfix
+        contact: jskladaan
+      taskotron/resultsdb_conventions:
+        label: easyfix
+        contact: adamwill
+      taskotron/resultsdb:
+        label: easyfix
+        contact: jskladan
+      taskotron/taskotron-docker:
+        label: easyfix
+        contact: jskladan
+      taskotron/taskotron-trigger:
+        label: easyfix
+        contact: jskladan
+      taskotron/task-rpmdeplint:
+        label: easyfix
+        contact: kparal
+      taskotron/rpmgrill:
+        label: easyfix
+        contact: kparal
+      taskotron/task-taskotron-ci:
+        label: easyfix
+        contact: jskladan
+      taskotron/vault:
+        label: easyfix
+        contact: jskladan
+      testcloud:
+        label: easyfix
+        contact: lbrabec
+  gitlab:
+    url: https://gitlab.com/
+    repositories:
+      t0xic0der/fragment:
+        pid: 29571186
+        label: easyfix
+        contact: t0xic0der
