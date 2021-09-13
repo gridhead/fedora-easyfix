@@ -29,6 +29,7 @@ from fedora_easyfix.__init__ import __version__
 from fedora_easyfix.utilities.compose import StatusDecorator
 from fedora_easyfix.utilities.github import GitHubRepositories
 from fedora_easyfix.utilities.pagure import PagureRepositories
+from fedora_easyfix.utilities.gitlab import GitLabRepositories
 from yaml import CLoader, load
 
 statdcrt = StatusDecorator()
@@ -53,6 +54,7 @@ def mainfunc():
         github_username = envrvars["GITHUB_USERNAME"]
         github_api_key = envrvars["GITHUB_API_KEY"]
         pagure_api_key = envrvars["PAGURE_API_KEY"]
+        gitlab_api_key = envrvars["GITLAB_API_KEY"]
         with open("repolist.yml", "r") as yamlfile:
             yamldict = load(yamlfile.read(), Loader=CLoader)
         if yamldict["repolist_version"] == __version__:
@@ -75,6 +77,15 @@ def mainfunc():
                     pagure_repository_list,
                     pagure_base_url,
                     pagure_api_key
+                ).return_repository_collection()
+            if "gitlab" in yamldict["forges"].keys():
+                gitlab_repository_list = yamldict["forges"]["gitlab"]["repositories"]
+                gitlab_base_url = yamldict["forges"]["gitlab"]["url"]
+                statdcrt.warning("Found %s repositories on GitLab" %len(yamldict["forges"]["gitlab"]["repositories"].keys()))
+                ticket_collection["gitlab"] = GitLabRepositories(
+                    gitlab_repository_list,
+                    gitlab_base_url,
+                    gitlab_api_key
                 ).return_repository_collection()
             ticket_collection["collection_updated_at"] = time()
             write_index_to_local_json(ticket_collection)
