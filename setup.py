@@ -22,6 +22,7 @@
 
 import codecs
 import os.path
+
 import setuptools
 
 
@@ -68,7 +69,7 @@ setuptools.setup(
     entry_points={
         "console_scripts": [
             "start-easyfix-server=fedora_easyfix.main:mainfunc",
-            "index-easyfix-issues=fedora_easyfix.utilities.generate:mainfunc"
+            "index-easyfix-issues=fedora_easyfix.utilities.producer:mainfunc"
         ],
     },
     classifiers=[

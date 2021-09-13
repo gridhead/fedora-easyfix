@@ -19,3 +19,7 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 """
+
+from fedora_easyfix.__init__ import __version__ as primvers
+
+__version__ = primvers

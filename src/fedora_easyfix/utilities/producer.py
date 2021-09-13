@@ -26,10 +26,10 @@ from time import time
 
 from dotenv import dotenv_values
 from fedora_easyfix.__init__ import __version__
-from fedora_easyfix.utilities.compose import StatusDecorator
-from fedora_easyfix.utilities.github import GitHubRepositories
-from fedora_easyfix.utilities.pagure import PagureRepositories
-from fedora_easyfix.utilities.gitlab import GitLabRepositories
+from fedora_easyfix.models.github import GitHubRepositories
+from fedora_easyfix.models.gitlab import GitLabRepositories
+from fedora_easyfix.models.pagure import PagureRepositories
+from fedora_easyfix.utilities.composer import StatusDecorator
 from yaml import CLoader, load
 
 statdcrt = StatusDecorator()
