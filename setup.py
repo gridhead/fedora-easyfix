@@ -46,7 +46,7 @@ setuptools.setup(
     name="fedora_easyfix",
     description="A collection of self-contained and well-documented issues for newcomers to start contributing with",
     long_description="A collection of self-contained and well-documented issues for newcomers to start contributing with",
-    url="https://github.com/t0xic0der/fedora_easyfix",
+    url="https://github.com/t0xic0der/fedora-easyfix",
     author="Fedora Websites and Apps Team",
     author_email="websites@lists.fedoraproject.org",
     maintainer="Akashdeep Dhar",
@@ -58,6 +58,8 @@ setuptools.setup(
     package_dir={
         "": "src",
     },
+    include_package_data=True,
+    zip_safe=False,
     packages=setuptools.find_packages("src"),
     install_requires=[
         "flask",
