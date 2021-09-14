@@ -22,20 +22,21 @@
 
 from json import loads
 
-from fedora_easyfix.utilities.compose import StatusDecorator
-from urllib3 import PoolManager
+from fedora_easyfix.utilities.composer import StatusDecorator
+from urllib3 import PoolManager, make_headers
 
 httpobjc = PoolManager()
-api_base_url = "https://pagure.io/api/0/"
+api_base_url = "https://api.github.com/repos/"
 statdcrt = StatusDecorator()
 
 
-class PagureRepositories():
-    def __init__(self, repository_list, base_url, api_key):
+class GitHubRepositories():
+    def __init__(self, repository_list, base_url, api_key, username):
         self.repository_list = repository_list
         self.base_url = base_url
         self.api_key = api_key
         self.repository_collection = {}
+        self.headers = make_headers(basic_auth="%s:%s" %(username, api_key))
 
     def fetch_tickets_from_repository(self, repository_name):
         label = self.repository_list[repository_name]["label"]
@@ -44,49 +45,49 @@ class PagureRepositories():
         respobjc = httpobjc.request(
             "GET",
             api_issue_endpoint,
+            headers=self.headers,
             fields={
                 "per_page": 100,
-                "tags": label,
-                "status": "Open"
+                "labels": label,
+                "state": "open"
             }
         )
         respdict = loads(respobjc.data)
-        ticket_count = respdict["total_issues"]
+        ticket_count = 0
         ticket_list = {}
-        for ticket in respdict["issues"]:
-            ticket_list[ticket["id"]] = {
+        for ticket in respdict:
+            ticket_count += 1
+            ticket_list[ticket["number"]] = {
                 "title": ticket["title"],
-                "date_created": ticket["date_created"],
-                "last_updated": ticket["last_updated"],
+                "date_created": ticket["created_at"],
+                "last_updated": ticket["updated_at"],
                 "creator": {
-                    "full_url": ticket["user"]["full_url"],
-                    "fullname": ticket["user"]["fullname"],
-                    "name": ticket["user"]["name"]
+                    "full_url": ticket["user"]["html_url"],
+                    "name": ticket["user"]["login"]
                 },
-                "url": ticket["full_url"],
-                "labels": ticket["tags"]
+                "url": ticket["html_url"],
+                "labels": [label["name"] for label in ticket["labels"]]
             }
         api_project_endpoint = "%s%s" % (api_base_url, repository_name)
         respobjc = httpobjc.request(
             "GET",
             api_project_endpoint,
+            headers=self.headers,
         )
         respdict = loads(respobjc.data)
         ticket_dict = {
             "ticket_count": ticket_count,
             "ticket_list": ticket_list,
             "contact": "%s@fedoraproject.org" % contact,
-            "url": respdict["full_url"],
+            "url": respdict["html_url"],
             "description": respdict["description"],
             "id": respdict["id"],
             "target_label": label,
             "maintainer": {
-                "full_url": respdict["user"]["full_url"],
-                "fullname": respdict["user"]["fullname"],
-                "name": respdict["user"]["name"]
+                "full_url": respdict["owner"]["html_url"],
+                "name": respdict["owner"]["login"]
             },
-            "tags": respdict["tags"],
-            "date_created": respdict["date_created"]
+            "date_created": respdict["created_at"]
         }
         return ticket_dict, ticket_count
 
