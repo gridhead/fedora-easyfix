@@ -46,7 +46,10 @@ class Producer(object):
         self.gitlab_api_key = self.envrvars["GITLAB_API_KEY"]
         self.rplist_url = self.envrvars["RPLIST_URL"]
         self.yamldict = load(httpobjc.request("GET", self.rplist_url).data.decode(), Loader=CLoader)
-        self.ticket_collection = {}
+        self.ticket_collection = {
+            "forges": {},
+            "collection_updated_at": 0.0
+        }
 
     def check_repolist_version_and_start(self):
         if self.yamldict["repolist_version"] == __version__:
@@ -67,7 +70,7 @@ class Producer(object):
                 "Found %s repositories on GitHub" %
                 len(self.yamldict["forges"]["github"]["repositories"].keys())
             )
-            self.ticket_collection["github"] = GitHubRepositories(
+            self.ticket_collection["forges"]["github"] = GitHubRepositories(
                 github_repository_list,
                 github_base_url,
                 self.github_api_key,
@@ -80,7 +83,7 @@ class Producer(object):
                 "Found %s repositories on Pagure" %
                 len(self.yamldict["forges"]["pagure"]["repositories"].keys())
             )
-            self.ticket_collection["pagure"] = PagureRepositories(
+            self.ticket_collection["forges"]["pagure"] = PagureRepositories(
                 pagure_repository_list,
                 pagure_base_url,
                 self.pagure_api_key
@@ -92,7 +95,7 @@ class Producer(object):
                 "Found %s repositories on GitLab" %
                 len(self.yamldict["forges"]["gitlab"]["repositories"].keys())
             )
-            self.ticket_collection["gitlab"] = GitLabRepositories(
+            self.ticket_collection["forges"]["gitlab"] = GitLabRepositories(
                 gitlab_repository_list,
                 gitlab_base_url,
                 self.gitlab_api_key
