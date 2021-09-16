@@ -21,10 +21,36 @@
 """
 
 import click
-from flask import Flask, render_template
 from fedora_easyfix.__init__ import __version__
+from fedora_easyfix.utilities.consumer import (
+    ErraticReturns,
+    TicketDataRetrieval,
+)
+from flask import Flask, jsonify, render_template, request
 
 main = Flask(__name__)
+
+
+@main.get("/endpoint/")
+def endpoint():
+    command = request.args.get("command")
+    try:
+        if command == "PREL":
+            return_data = TicketDataRetrieval().preliminary_information()
+        elif command == "REPO":
+            forge = request.args.get("forge")
+            repository = request.args.get("repository")
+            return_data = TicketDataRetrieval().repository_information(forge, repository)
+        elif command == "TICK":
+            forge = request.args.get("forge")
+            repository = request.args.get("repository")
+            number = request.args.get("number")
+            return_data = TicketDataRetrieval().issue_information(forge, repository, number)
+        else:
+            return_data = ErraticReturns().parameter_error_return_data()
+    except Exception as expt:
+        return_data = ErraticReturns().file_read_error_return_data()
+    return jsonify(return_data)
 
 
 @main.get("/")
