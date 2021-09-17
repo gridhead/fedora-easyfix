@@ -24,7 +24,7 @@ from json import loads
 from time import time
 
 
-class ErraticReturns(object):
+class ErraticReturns:
     def parameter_error_return_data(self):
         return_data = {
             "status": "FAIL",
@@ -47,36 +47,36 @@ class ErraticReturns(object):
 class TicketDataRetrieval(object):
     def __init__(self):
         self.filename = "tickdata.json"
-        with open(self.filename, "r") as self.fileobjc:
-            self.dictcont = loads(self.fileobjc.read())
+        with open(self.filename, "r") as fileobjc:
+            self.dictcont = loads(fileobjc.read())
 
-    def preliminary_information(self):
+    def retrieve_preliminary_information(self):
         try:
             return_data = {
                 "status": "PASS",
                 "forges": {},
                 "collection_fetched_at": 0.0
             }
-            for forge in self.dictcont["forges"].keys():
+            for forge_name, forge in self.dictcont["forges"].items():
                 forge_info = {
-                    "name": forge,
+                    "name": forge_name,
                     "repository_list": {}
                 }
-                for repository in self.dictcont["forges"][forge].keys():
+                for repository_name, repository in forge.items():
                     repository_info = {
-                        "name": repository,
-                        "description": self.dictcont["forges"][forge][repository]["description"],
-                        "contact": self.dictcont["forges"][forge][repository]["contact"],
+                        "name": repository_name,
+                        "description": repository["description"],
+                        "contact": repository["contact"],
                         "issue_list": {}
                     }
-                    for issue in self.dictcont["forges"][forge][repository]["ticket_list"].keys():
+                    for issue_id, issue in repository["ticket_list"].items():
                         issue_info = {
-                            "title": self.dictcont["forges"][forge][repository]["ticket_list"][issue]["title"],
-                            "labels": self.dictcont["forges"][forge][repository]["ticket_list"][issue]["labels"]
+                            "title": issue["title"],
+                            "labels": issue["labels"]
                         }
-                        repository_info["issue_list"][issue] = issue_info
-                    forge_info[repository] = repository_info
-                return_data["forges"][forge] = forge_info
+                        repository_info["issue_list"][issue_id] = issue_info
+                    forge_info[repository_name] = repository_info
+                return_data["forges"][forge_name] = forge_info
             return_data["collection_fetched_at"] = time()
         except Exception as expt:
             return_data = {
@@ -87,21 +87,22 @@ class TicketDataRetrieval(object):
             }
         return return_data
 
-    def repository_information(self, forge, repository):
+    def retrieve_repository_information(self, forge, repository):
         try:
+            repository_info = self.dictcont["forges"][forge][repository]
             return_data = {
                 "status": "PASS",
                 "information": {
                     "name": repository,
                     "forge": forge,
-                    "ticket_count": self.dictcont["forges"][forge][repository]["ticket_count"],
-                    "contact": self.dictcont["forges"][forge][repository]["contact"],
-                    "url": self.dictcont["forges"][forge][repository]["url"],
-                    "description": self.dictcont["forges"][forge][repository]["description"],
-                    "id": self.dictcont["forges"][forge][repository]["id"],
-                    "target_label": self.dictcont["forges"][forge][repository]["target_label"],
-                    "maintainer": self.dictcont["forges"][forge][repository]["maintainer"],
-                    "date_created": self.dictcont["forges"][forge][repository]["date_created"]
+                    "ticket_count": repository_info["ticket_count"],
+                    "contact": repository_info["contact"],
+                    "url": repository_info["url"],
+                    "description": repository_info["description"],
+                    "id": repository_info["id"],
+                    "target_label": repository_info["target_label"],
+                    "maintainer": repository_info["maintainer"],
+                    "date_created": repository_info["date_created"]
                 },
                 "collection_fetched_at": time()
             }
@@ -114,20 +115,21 @@ class TicketDataRetrieval(object):
             }
         return return_data
 
-    def issue_information(self, forge, repository, number):
+    def retrieve_issue_information(self, forge, repository, number):
         try:
+            issue_info = self.dictcont["forges"][forge][repository]["ticket_list"][number]
             return_data = {
                 "status": "PASS",
                 "information": {
                     "name": repository,
                     "forge": forge,
                     "number": number,
-                    "title": self.dictcont["forges"][forge][repository]["ticket_list"][number]["title"],
-                    "date_created": self.dictcont["forges"][forge][repository]["ticket_list"][number]["date_created"],
-                    "last_updated": self.dictcont["forges"][forge][repository]["ticket_list"][number]["last_updated"],
-                    "creator": self.dictcont["forges"][forge][repository]["ticket_list"][number]["creator"],
-                    "url": self.dictcont["forges"][forge][repository]["ticket_list"][number]["url"],
-                    "labels": self.dictcont["forges"][forge][repository]["ticket_list"][number]["labels"]
+                    "title": issue_info["title"],
+                    "date_created": issue_info["date_created"],
+                    "last_updated": issue_info["last_updated"],
+                    "creator": issue_info["creator"],
+                    "url": issue_info["url"],
+                    "labels": issue_info["labels"]
                 },
                 "collection_fetched_at": time()
             }

@@ -36,16 +36,16 @@ def endpoint():
     command = request.args.get("command")
     try:
         if command == "PREL":
-            return_data = TicketDataRetrieval().preliminary_information()
+            return_data = TicketDataRetrieval().retrieve_preliminary_information()
         elif command == "REPO":
             forge = request.args.get("forge")
             repository = request.args.get("repository")
-            return_data = TicketDataRetrieval().repository_information(forge, repository)
+            return_data = TicketDataRetrieval().retrieve_repository_information(forge, repository)
         elif command == "TICK":
             forge = request.args.get("forge")
             repository = request.args.get("repository")
             number = request.args.get("number")
-            return_data = TicketDataRetrieval().issue_information(forge, repository, number)
+            return_data = TicketDataRetrieval().retrieve_issue_information(forge, repository, number)
         else:
             return_data = ErraticReturns().parameter_error_return_data()
     except Exception as expt:
