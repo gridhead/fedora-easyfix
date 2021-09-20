@@ -33,18 +33,18 @@ main = Flask(__name__)
 
 @main.get("/endpoint/")
 def endpoint():
-    command = request.args.get("command")
+    command = request.args["command"]
     try:
         if command == "PREL":
             return_data = TicketDataRetrieval().retrieve_preliminary_information()
         elif command == "REPO":
-            forge = request.args.get("forge")
-            repository = request.args.get("repository")
+            forge = request.args["forge"]
+            repository = request.args["repository"]
             return_data = TicketDataRetrieval().retrieve_repository_information(forge, repository)
         elif command == "TICK":
-            forge = request.args.get("forge")
-            repository = request.args.get("repository")
-            number = request.args.get("number")
+            forge = request.args["forge"]
+            repository = request.args["repository"]
+            number = request.args["number"]
             return_data = TicketDataRetrieval().retrieve_issue_information(forge, repository, number)
         else:
             return_data = ErraticReturns().parameter_error_return_data()
