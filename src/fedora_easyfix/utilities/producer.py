@@ -31,6 +31,7 @@ from fedora_easyfix.models.gitlab import GitLabRepositories
 from fedora_easyfix.models.pagure import PagureRepositories
 from fedora_easyfix.utilities.composer import StatusDecorator
 from urllib3 import PoolManager
+from urllib3.exceptions import MaxRetryError, NewConnectionError
 from yaml import CLoader, load
 
 httpobjc = PoolManager()
@@ -62,7 +63,6 @@ class Producer(object):
             exit()
 
     def populate_ticket_collection(self):
-        statdcrt.section("Indexing tickets...")
         if "github" in self.yamldict["forges"].keys():
             github_repository_list = self.yamldict["forges"]["github"]["repositories"]
             github_base_url = self.yamldict["forges"]["github"]["url"]
@@ -107,19 +107,33 @@ class Producer(object):
             with open("tickdata.json", "w") as tickfile:
                 tickfile.write(tickdata)
             statdcrt.section("Indexing complete!")
-        except Exception as expt:
+        except PermissionError as expt:
             statdcrt.failure("Could not index tickets")
             statdcrt.general("Please check if appropriate permissions are available to write in the directory")
             exit()
 
 
 def mainfunc():
+    statdcrt.section("Indexing tickets...")
     try:
         prodobjc = Producer()
         prodobjc.check_repolist_version_and_start()
-    except Exception as expt:
+    except KeyError as expt:
         statdcrt.failure("Could not index tickets")
         statdcrt.general("Please check if the environment variables are configured properly")
+        exit()
+    except NewConnectionError as expt:
+        statdcrt.failure("Could not index tickets")
+        statdcrt.general("Please check if the repository listing is available in the specified location")
+        exit()
+    except MaxRetryError as expt:
+        statdcrt.failure("Could not index tickets")
+        statdcrt.general("Exceeded number of retries while attempting to fetch the repository listing")
+        exit()
+    except KeyboardInterrupt as expt:
+        print("\n", end="")
+        statdcrt.failure("Could not index tickets")
+        statdcrt.general("Process abortion requested by the user")
         exit()
 
 

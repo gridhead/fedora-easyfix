@@ -24,6 +24,7 @@ from json import loads
 
 from fedora_easyfix.utilities.composer import StatusDecorator
 from urllib3 import PoolManager, make_headers
+from urllib3.exceptions import MaxRetryError, NewConnectionError
 
 httpobjc = PoolManager()
 api_base_url = "https://api.github.com/repos/"
@@ -99,8 +100,12 @@ class GitHubRepositories():
                 self.repository_collection[repository_name], ticket_count = self.fetch_tickets_from_repository(repository_name)
                 statdcrt.general("[PASS] %s - Retrieved %s tickets" % (repository_name, ticket_count))
                 repositories_passed += 1
-            except Exception as expt:
-                statdcrt.general("[FAIL] %s - Failed to retrieve tickets" % repository_name)
+            except NewConnectionError as expt:
+                statdcrt.general("[FAIL] %s - Failed to retrieve tickets - Could not establish connection" % repository_name)
+                repositories_failed += 1
+                continue
+            except MaxRetryError as expt:
+                statdcrt.general("[FAIL] %s - Failed to retrieve tickets - Reached max number of retries" % repository_name)
                 repositories_failed += 1
                 continue
         statdcrt.success("%s passed, %s failed, %s total" %(repositories_passed, repositories_failed, repositories_total))

@@ -78,7 +78,7 @@ class TicketDataRetrieval(object):
                     forge_info[repository_name] = repository_info
                 return_data["forges"][forge_name] = forge_info
             return_data["collection_fetched_at"] = time()
-        except Exception as expt:
+        except KeyError as expt:
             return_data = {
                 "status": "FAIL",
                 "salute": "Could not fetch preliminary information",
@@ -106,7 +106,7 @@ class TicketDataRetrieval(object):
                 },
                 "collection_fetched_at": time()
             }
-        except Exception as expt:
+        except KeyError as expt:
             return_data = {
                 "status": "FAIL",
                 "salute": "Could not fetch repository information",
@@ -133,7 +133,7 @@ class TicketDataRetrieval(object):
                 },
                 "collection_fetched_at": time()
             }
-        except Exception as expt:
+        except KeyError as expt:
             return_data = {
                 "status": "FAIL",
                 "salute": "Could not fetch issue information",
