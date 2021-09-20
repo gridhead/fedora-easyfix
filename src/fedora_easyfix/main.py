@@ -31,24 +31,29 @@ from flask import Flask, jsonify, render_template, request
 main = Flask(__name__)
 
 
-@main.get("/endpoint/")
-def endpoint():
-    command = request.args["command"]
+@main.get("/0/preliminary/")
+def return_preliminary_information():
     try:
-        if command == "PREL":
-            return_data = TicketDataRetrieval().retrieve_preliminary_information()
-        elif command == "REPO":
-            forge = request.args["forge"]
-            repository = request.args["repository"]
-            return_data = TicketDataRetrieval().retrieve_repository_information(forge, repository)
-        elif command == "TICK":
-            forge = request.args["forge"]
-            repository = request.args["repository"]
-            number = request.args["number"]
-            return_data = TicketDataRetrieval().retrieve_issue_information(forge, repository, number)
-        else:
-            return_data = ErraticReturns().parameter_error_return_data()
-    except Exception as expt:
+        return_data = TicketDataRetrieval().retrieve_preliminary_information()
+    except FileNotFoundError as expt:
+        return_data = ErraticReturns().file_read_error_return_data()
+    return jsonify(return_data)
+
+
+@main.get("/0/repository/<string:forge>/<path:repository>/")
+def return_repository_information(forge, repository):
+    try:
+        return_data = TicketDataRetrieval().retrieve_repository_information(forge, repository)
+    except FileNotFoundError as expt:
+        return_data = ErraticReturns().file_read_error_return_data()
+    return jsonify(return_data)
+
+
+@main.get("/0/issue/<string:forge>/<path:repository>/<string:number>/")
+def return_issue_information(forge, repository, number):
+    try:
+        return_data = TicketDataRetrieval().retrieve_issue_information(forge, repository, number)
+    except FileNotFoundError as expt:
         return_data = ErraticReturns().file_read_error_return_data()
     return jsonify(return_data)
 
