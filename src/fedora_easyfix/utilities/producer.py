@@ -20,9 +20,9 @@
     SOFTWARE.
 """
 
-from json import dumps
-from sys import exit
-from time import time
+import json
+import sys
+import time
 
 from dotenv import dotenv_values
 from fedora_easyfix.__init__ import __version__
@@ -49,18 +49,18 @@ class Producer(object):
         self.yamldict = load(httpobjc.request("GET", self.rplist_url).data.decode(), Loader=CLoader)
         self.ticket_collection = {
             "forges": {},
-            "collection_updated_at": 0.0
+            "time_of_retrieval": 0.0
         }
 
     def check_repolist_version_and_start(self):
         if self.yamldict["repolist_version"] == __version__:
             self.populate_ticket_collection()
-            self.ticket_collection["collection_updated_at"] = time()
+            self.ticket_collection["time_of_retrieval"] = time.time()
             self.write_index_to_local_json()
         else:
             statdcrt.failure("Could not index tickets")
             statdcrt.general("Repolist version does not correspond with the Easyfix version")
-            exit()
+            sys.exit()
 
     def populate_ticket_collection(self):
         if "github" in self.yamldict["forges"].keys():
@@ -103,14 +103,14 @@ class Producer(object):
 
     def write_index_to_local_json(self):
         try:
-            tickdata = dumps(self.ticket_collection, indent=4)
+            tickdata = json.dumps(self.ticket_collection, indent=4)
             with open("tickdata.json", "w") as tickfile:
                 tickfile.write(tickdata)
             statdcrt.section("Indexing complete!")
         except PermissionError as expt:
             statdcrt.failure("Could not index tickets")
             statdcrt.general("Please check if appropriate permissions are available to write in the directory")
-            exit()
+            sys.exit()
 
 
 def mainfunc():
@@ -121,20 +121,20 @@ def mainfunc():
     except KeyError as expt:
         statdcrt.failure("Could not index tickets")
         statdcrt.general("Please check if the environment variables are configured properly")
-        exit()
+        sys.exit()
     except NewConnectionError as expt:
         statdcrt.failure("Could not index tickets")
         statdcrt.general("Please check if the repository listing is available in the specified location")
-        exit()
+        sys.exit()
     except MaxRetryError as expt:
         statdcrt.failure("Could not index tickets")
         statdcrt.general("Exceeded number of retries while attempting to fetch the repository listing")
-        exit()
+        sys.exit()
     except KeyboardInterrupt as expt:
         print("\n", end="")
         statdcrt.failure("Could not index tickets")
         statdcrt.general("Process abortion requested by the user")
-        exit()
+        sys.exit()
 
 
 if __name__ == "__main__":

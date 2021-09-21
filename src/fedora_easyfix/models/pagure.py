@@ -20,7 +20,7 @@
     SOFTWARE.
 """
 
-from json import loads
+import json
 
 from fedora_easyfix.utilities.composer import StatusDecorator
 from urllib3 import PoolManager
@@ -51,7 +51,7 @@ class PagureRepositories():
                 "status": "Open"
             }
         )
-        respdict = loads(respobjc.data)
+        respdict = json.loads(respobjc.data)
         ticket_count = respdict["total_issues"]
         ticket_list = {}
         for ticket in respdict["issues"]:
@@ -72,7 +72,7 @@ class PagureRepositories():
             "GET",
             api_project_endpoint,
         )
-        respdict = loads(respobjc.data)
+        respdict = json.loads(respobjc.data)
         ticket_dict = {
             "ticket_count": ticket_count,
             "ticket_list": ticket_list,

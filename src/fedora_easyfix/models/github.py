@@ -20,7 +20,7 @@
     SOFTWARE.
 """
 
-from json import loads
+import json
 
 from fedora_easyfix.utilities.composer import StatusDecorator
 from urllib3 import PoolManager, make_headers
@@ -53,7 +53,7 @@ class GitHubRepositories():
                 "state": "open"
             }
         )
-        respdict = loads(respobjc.data)
+        respdict = json.loads(respobjc.data)
         ticket_count = 0
         ticket_list = {}
         for ticket in respdict:
@@ -75,7 +75,7 @@ class GitHubRepositories():
             api_project_endpoint,
             headers=self.headers,
         )
-        respdict = loads(respobjc.data)
+        respdict = json.loads(respobjc.data)
         ticket_dict = {
             "ticket_count": ticket_count,
             "ticket_list": ticket_list,

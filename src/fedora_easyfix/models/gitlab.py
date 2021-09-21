@@ -20,7 +20,7 @@
     SOFTWARE.
 """
 
-from json import loads
+import json
 
 from fedora_easyfix.utilities.composer import StatusDecorator
 from urllib3 import PoolManager
@@ -52,7 +52,7 @@ class GitLabRepositories():
                 "state": "opened"
             }
         )
-        respdict = loads(respobjc.data)
+        respdict = json.loads(respobjc.data)
         ticket_count = 0
         ticket_list = {}
         for ticket in respdict:
@@ -74,7 +74,7 @@ class GitLabRepositories():
             "GET",
             api_project_endpoint,
         )
-        respdict = loads(respobjc.data)
+        respdict = json.loads(respobjc.data)
         ticket_dict = {
             "ticket_count": ticket_count,
             "ticket_list": ticket_list,

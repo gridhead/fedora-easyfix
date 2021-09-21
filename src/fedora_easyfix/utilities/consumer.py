@@ -20,8 +20,8 @@
     SOFTWARE.
 """
 
-from json import loads
-from time import time
+import json
+import time
 
 
 class ErraticReturns:
@@ -30,7 +30,7 @@ class ErraticReturns:
             "status": "FAIL",
             "salute": "Could not fetch requested information",
             "reason": "Command string could not be interpreted",
-            "collection_fetched_at": time()
+            "time_of_retrieval": time.time()
         }
         return return_data
 
@@ -39,7 +39,7 @@ class ErraticReturns:
             "status": "FAIL",
             "salute": "Could not fetch requested information",
             "reason": "Index file could not be accessed",
-            "collection_fetched_at": time()
+            "time_of_retrieval": time.time()
         }
         return return_data
 
@@ -48,14 +48,14 @@ class TicketDataRetrieval(object):
     def __init__(self):
         self.filename = "tickdata.json"
         with open(self.filename, "r") as fileobjc:
-            self.dictcont = loads(fileobjc.read())
+            self.dictcont = json.loads(fileobjc.read())
 
     def retrieve_preliminary_information(self):
         try:
             return_data = {
                 "status": "PASS",
                 "forges": {},
-                "collection_fetched_at": 0.0
+                "time_of_retrieval": time.time()
             }
             for forge_name, forge in self.dictcont["forges"].items():
                 forge_info = {
@@ -77,13 +77,12 @@ class TicketDataRetrieval(object):
                         repository_info["issue_list"][issue_id] = issue_info
                     forge_info[repository_name] = repository_info
                 return_data["forges"][forge_name] = forge_info
-            return_data["collection_fetched_at"] = time()
         except KeyError as expt:
             return_data = {
                 "status": "FAIL",
                 "salute": "Could not fetch preliminary information",
                 "reason": str(expt),
-                "collection_fetched_at": time()
+                "time_of_retrieval": time.time()
             }
         return return_data
 
@@ -104,14 +103,14 @@ class TicketDataRetrieval(object):
                     "maintainer": repository_info["maintainer"],
                     "date_created": repository_info["date_created"]
                 },
-                "collection_fetched_at": time()
+                "time_of_retrieval": time.time()
             }
         except KeyError as expt:
             return_data = {
                 "status": "FAIL",
                 "salute": "Could not fetch repository information",
                 "reason": str(expt),
-                "collection_fetched_at": time()
+                "time_of_retrieval": time.time()
             }
         return return_data
 
@@ -131,13 +130,13 @@ class TicketDataRetrieval(object):
                     "url": issue_info["url"],
                     "labels": issue_info["labels"]
                 },
-                "collection_fetched_at": time()
+                "time_of_retrieval": time.time()
             }
         except KeyError as expt:
             return_data = {
                 "status": "FAIL",
                 "salute": "Could not fetch issue information",
                 "reason": str(expt),
-                "collection_fetched_at": time()
+                "time_of_retrieval": time.time()
             }
         return return_data
