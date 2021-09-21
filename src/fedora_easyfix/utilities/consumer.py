@@ -28,7 +28,7 @@ class ErraticReturns:
     def parameter_error_return_data(self):
         return_data = {
             "status": "FAIL",
-            "salute": "Could not fetch requested information",
+            "report": "Could not fetch requested information",
             "reason": "Command string could not be interpreted",
             "time_of_retrieval": time.time()
         }
@@ -37,7 +37,7 @@ class ErraticReturns:
     def file_read_error_return_data(self):
         return_data = {
             "status": "FAIL",
-            "salute": "Could not fetch requested information",
+            "report": "Could not fetch requested information",
             "reason": "Index file could not be accessed",
             "time_of_retrieval": time.time()
         }
@@ -80,8 +80,69 @@ class TicketDataRetrieval(object):
         except KeyError as expt:
             return_data = {
                 "status": "FAIL",
-                "salute": "Could not fetch preliminary information",
+                "report": "Could not fetch preliminary information",
                 "reason": str(expt),
+                "time_of_retrieval": time.time()
+            }
+        return return_data
+
+    def retrieve_forge_list(self):
+        try:
+            forge_list = self.dictcont["forges"]
+            return_data = {
+                "status": "PASS",
+                "forges": {},
+                "time_of_retrieval": time.time()
+            }
+            for forge in forge_list:
+                return_data["forges"][forge] = {
+                    "information": "/0/forges/%s" % forge
+                }
+        except KeyError as expt:
+            return_data = {
+                "status": "FAIL",
+                "report": "Could not fetch the list of forges",
+                "reason": str(expt),
+                "time_of_retrieval": time.time()
+            }
+        return return_data
+
+    def retrieve_forge_information(self, forge):
+        try:
+            return_data = {
+                "status": "PASS",
+                "forge": {
+                    "name": forge,
+                    "repository_list": "/0/forges/%s/repositories" % forge
+                },
+                "time_of_retrieval": time.time()
+            }
+        except KeyError as expt:
+            return_data = {
+                "status": "FAIL",
+                "report": "Could not fetch the forge information",
+                "reason": "No forge with that name exists within the index",
+                "time_of_retrieval": time.time()
+            }
+        return return_data
+
+    def retrieve_repository_list(self, forge):
+        try:
+            repository_list = self.dictcont["forges"][forge]
+            return_data = {
+                "status": "PASS",
+                "repositories": {},
+                "time_of_retrieval": time.time()
+            }
+            for repository in repository_list:
+                return_data["repositories"][repository] = {
+                    "information": "/0/forges/%s/repositories/%s" % (forge, repository),
+                }
+        except KeyError as expt:
+            return_data = {
+                "status": "FAIL",
+                "report": "Could not fetch the list of repositories",
+                "reason": "No forge with that name exists within the index",
                 "time_of_retrieval": time.time()
             }
         return return_data
@@ -91,7 +152,7 @@ class TicketDataRetrieval(object):
             repository_info = self.dictcont["forges"][forge][repository]
             return_data = {
                 "status": "PASS",
-                "information": {
+                "repository": {
                     "name": repository,
                     "forge": forge,
                     "ticket_count": repository_info["ticket_count"],
@@ -101,15 +162,39 @@ class TicketDataRetrieval(object):
                     "id": repository_info["id"],
                     "target_label": repository_info["target_label"],
                     "maintainer": repository_info["maintainer"],
-                    "date_created": repository_info["date_created"]
+                    "date_created": repository_info["date_created"],
+                    "issues": "/0/forges/%s/repositories/%s/issues" % (forge, repository)
                 },
                 "time_of_retrieval": time.time()
             }
         except KeyError as expt:
             return_data = {
                 "status": "FAIL",
-                "salute": "Could not fetch repository information",
-                "reason": str(expt),
+                "report": "Could not fetch repository information",
+                "reason": "No forge or repository with that name exists within the index",
+                "time_of_retrieval": time.time()
+            }
+        return return_data
+
+    def retrieve_issue_list(self, forge, repository):
+        try:
+            issue_list = self.dictcont["forges"][forge][repository]["ticket_list"]
+            return_data = {
+                "status": "PASS",
+                "issues": {},
+                "time_of_retrieval": time.time()
+            }
+            for issue in issue_list:
+                return_data["issues"][issue] = {
+                    "title": issue_list[issue]["title"],
+                    "url": issue_list[issue]["url"],
+                    "information": "/0/forges/%s/repositories/%s/issues/%s" % (forge, repository, issue)
+                }
+        except KeyError as expt:
+            return_data = {
+                "status": "FAIL",
+                "report": "Could not fetch the list of issues",
+                "reason": "No forge or repository with that name exists within the index",
                 "time_of_retrieval": time.time()
             }
         return return_data
@@ -119,7 +204,7 @@ class TicketDataRetrieval(object):
             issue_info = self.dictcont["forges"][forge][repository]["ticket_list"][number]
             return_data = {
                 "status": "PASS",
-                "information": {
+                "issue": {
                     "name": repository,
                     "forge": forge,
                     "number": number,
@@ -135,8 +220,8 @@ class TicketDataRetrieval(object):
         except KeyError as expt:
             return_data = {
                 "status": "FAIL",
-                "salute": "Could not fetch issue information",
-                "reason": str(expt),
+                "report": "Could not fetch issue information",
+                "reason": "No forge, repository or issue with that name exists within the index",
                 "time_of_retrieval": time.time()
             }
         return return_data
