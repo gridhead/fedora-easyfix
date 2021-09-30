@@ -22,7 +22,7 @@
 
 import json
 
-from fedora_easyfix.models.common import UserNotFound
+from fedora_easyfix.models.common import RepositoryNotFound, UserNotFound
 from fedora_easyfix.utilities.composer import StatusDecorator
 from urllib3 import PoolManager, make_headers
 from urllib3.exceptions import MaxRetryError, NewConnectionError
@@ -61,44 +61,47 @@ class GitHubRepositories:
             fields={"per_page": 100, "labels": label, "state": "open"},
         )
         respdict = json.loads(respobjc.data)
-        ticket_count = 0
-        ticket_list = {}
-        for ticket in respdict:
-            ticket_count += 1
-            ticket_list[ticket["number"]] = {
-                "title": ticket["title"],
-                "date_created": ticket["created_at"],
-                "last_updated": ticket["updated_at"],
-                "creator": {
-                    "full_url": ticket["user"]["html_url"],
-                    "name": ticket["user"]["login"],
+        if "message" in respdict:
+            raise RepositoryNotFound
+        else:
+            ticket_count = 0
+            ticket_list = {}
+            for ticket in respdict:
+                ticket_count += 1
+                ticket_list[ticket["number"]] = {
+                    "title": ticket["title"],
+                    "date_created": ticket["created_at"],
+                    "last_updated": ticket["updated_at"],
+                    "creator": {
+                        "full_url": ticket["user"]["html_url"],
+                        "name": ticket["user"]["login"],
+                    },
+                    "url": ticket["html_url"],
+                    "labels": [label["name"] for label in ticket["labels"]],
+                }
+            api_project_endpoint = "%s%s" % (api_base_url, repository_name)
+            respobjc = httpobjc.request(
+                "GET",
+                api_project_endpoint,
+                headers=self.headers,
+            )
+            respdict = json.loads(respobjc.data)
+            ticket_dict = {
+                "ticket_count": ticket_count,
+                "ticket_list": ticket_list,
+                "contact": "%s@fedoraproject.org" % contact,
+                "url": respdict["html_url"],
+                "description": respdict["description"],
+                "id": respdict["id"],
+                "target_label": label,
+                "maintainer": {
+                    "full_url": respdict["owner"]["html_url"],
+                    "name": respdict["owner"]["login"],
+                    "avatar_url": self.fetch_avatar_location(contact),
                 },
-                "url": ticket["html_url"],
-                "labels": [label["name"] for label in ticket["labels"]],
+                "date_created": respdict["created_at"],
             }
-        api_project_endpoint = "%s%s" % (api_base_url, repository_name)
-        respobjc = httpobjc.request(
-            "GET",
-            api_project_endpoint,
-            headers=self.headers,
-        )
-        respdict = json.loads(respobjc.data)
-        ticket_dict = {
-            "ticket_count": ticket_count,
-            "ticket_list": ticket_list,
-            "contact": "%s@fedoraproject.org" % contact,
-            "url": respdict["html_url"],
-            "description": respdict["description"],
-            "id": respdict["id"],
-            "target_label": label,
-            "maintainer": {
-                "full_url": respdict["owner"]["html_url"],
-                "name": respdict["owner"]["login"],
-                "avatar_url": self.fetch_avatar_location(contact),
-            },
-            "date_created": respdict["created_at"],
-        }
-        return ticket_dict, ticket_count
+            return ticket_dict, ticket_count
 
     def return_repository_collection(self):
         repositories_passed, repositories_failed, repositories_total = 0, 0, 0
@@ -113,6 +116,13 @@ class GitHubRepositories:
                     "[PASS] %s - Retrieved %s tickets" % (repository_name, ticket_count)
                 )
                 repositories_passed += 1
+            except RepositoryNotFound as expt:
+                statdcrt.general(
+                    "[FAIL] %s - Failed to retrieve tickets - Repository does not exist"
+                    % repository_name
+                )
+                repositories_failed += 1
+                continue
             except UserNotFound as expt:
                 statdcrt.general(
                     "[FAIL] %s - Failed to retrieve tickets - Maintainer does not exist"

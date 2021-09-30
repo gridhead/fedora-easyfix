@@ -21,5 +21,9 @@
 """
 
 
+class RepositoryNotFound(Exception):
+    pass
+
+
 class UserNotFound(Exception):
     pass
