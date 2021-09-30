@@ -22,6 +22,7 @@
 
 import json
 
+from fedora_easyfix.models.common import UserNotFound
 from fedora_easyfix.utilities.composer import StatusDecorator
 from urllib3 import PoolManager
 from urllib3.exceptions import MaxRetryError, NewConnectionError
@@ -31,12 +32,22 @@ api_base_url = "https://gitlab.com/api/v4/projects/"
 statdcrt = StatusDecorator()
 
 
-class GitLabRepositories():
+class GitLabRepositories:
     def __init__(self, repository_list, base_url, api_key):
         self.repository_list = repository_list
         self.base_url = base_url
         self.api_key = api_key
         self.repository_collection = {}
+
+    def fetch_avatar_location(self, maintainer_username):
+        api_avatar_endpoint = "https://pagure.io/api/0/user/%s" % maintainer_username
+        respobjc = httpobjc.request("GET", api_avatar_endpoint)
+        respdict = json.loads(respobjc.data)
+        if "error" in respdict:
+            raise UserNotFound
+        else:
+            avatar_location = respdict["user"]["avatar_url"]
+            return avatar_location
 
     def fetch_tickets_from_repository(self, repository_name):
         label = self.repository_list[repository_name]["label"]
@@ -46,11 +57,7 @@ class GitLabRepositories():
         respobjc = httpobjc.request(
             "GET",
             api_issue_endpoint,
-            fields={
-                "per_page": 100,
-                "labels": label,
-                "state": "opened"
-            }
+            fields={"per_page": 100, "labels": label, "state": "opened"},
         )
         respdict = json.loads(respobjc.data)
         ticket_count = 0
@@ -64,10 +71,10 @@ class GitLabRepositories():
                 "creator": {
                     "full_url": ticket["author"]["web_url"],
                     "fullname": ticket["author"]["name"],
-                    "name": ticket["author"]["username"]
+                    "name": ticket["author"]["username"],
                 },
                 "url": ticket["web_url"],
-                "labels": ticket["labels"]
+                "labels": ticket["labels"],
             }
         api_project_endpoint = "%s%s" % (api_base_url, project_id)
         respobjc = httpobjc.request(
@@ -86,10 +93,11 @@ class GitLabRepositories():
             "maintainer": {
                 "full_url": respdict["namespace"]["web_url"],
                 "fullname": respdict["namespace"]["name"],
-                "name": respdict["namespace"]["path"]
+                "name": respdict["namespace"]["path"],
+                "avatar_url": self.fetch_avatar_location(contact),
             },
             "tags": respdict["tag_list"],
-            "date_created": respdict["created_at"]
+            "date_created": respdict["created_at"],
         }
         return ticket_dict, ticket_count
 
@@ -98,16 +106,37 @@ class GitLabRepositories():
         for repository_name in self.repository_list.keys():
             repositories_total += 1
             try:
-                self.repository_collection[repository_name], ticket_count = self.fetch_tickets_from_repository(repository_name)
-                statdcrt.general("[PASS] %s - Retrieved %s tickets" % (repository_name, ticket_count))
+                (
+                    self.repository_collection[repository_name],
+                    ticket_count,
+                ) = self.fetch_tickets_from_repository(repository_name)
+                statdcrt.general(
+                    "[PASS] %s - Retrieved %s tickets" % (repository_name, ticket_count)
+                )
                 repositories_passed += 1
+            except UserNotFound as expt:
+                statdcrt.general(
+                    "[FAIL] %s - Failed to retrieve tickets - Maintainer does not exist"
+                    % repository_name
+                )
+                repositories_failed += 1
+                continue
             except NewConnectionError as expt:
-                statdcrt.general("[FAIL] %s - Failed to retrieve tickets - Could not establish connection" % repository_name)
+                statdcrt.general(
+                    "[FAIL] %s - Failed to retrieve tickets - Could not establish connection"
+                    % repository_name
+                )
                 repositories_failed += 1
                 continue
             except MaxRetryError as expt:
-                statdcrt.general("[FAIL] %s - Failed to retrieve tickets - Reached max number of retries" % repository_name)
+                statdcrt.general(
+                    "[FAIL] %s - Failed to retrieve tickets - Reached max number of retries"
+                    % repository_name
+                )
                 repositories_failed += 1
                 continue
-        statdcrt.success("%s passed, %s failed, %s total" %(repositories_passed, repositories_failed, repositories_total))
+        statdcrt.success(
+            "%s passed, %s failed, %s total"
+            % (repositories_passed, repositories_failed, repositories_total)
+        )
         return self.repository_collection

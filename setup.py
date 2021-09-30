@@ -35,7 +35,7 @@ def read(rel_path):
 def get_version(rel_path):
     for line in read(rel_path).splitlines():
         if line.startswith("__version__"):
-            delim = "\"" if "\"" in line else "\""
+            delim = '"' if '"' in line else '"'
             return line.split(delim)[1]
     else:
         raise RuntimeError("Unable to find version string.")
@@ -61,17 +61,12 @@ setuptools.setup(
     include_package_data=True,
     zip_safe=False,
     packages=setuptools.find_packages("src"),
-    install_requires=[
-        "flask",
-        "pyyaml",
-        "python-dotenv",
-        "urllib3"
-    ],
+    install_requires=["flask", "pyyaml", "python-dotenv", "urllib3"],
     # automatically create console scripts
     entry_points={
         "console_scripts": [
             "start-easyfix-server=fedora_easyfix.main:mainfunc",
-            "index-easyfix-issues=fedora_easyfix.utilities.producer:mainfunc"
+            "index-easyfix-issues=fedora_easyfix.utilities.producer:mainfunc",
         ],
     },
     classifiers=[
@@ -82,6 +77,6 @@ setuptools.setup(
         "Natural Language :: English",
         "Programming Language :: Python :: 3",
         "Operating System :: POSIX :: Linux",
-        "Topic :: Internet"
+        "Topic :: Internet",
     ],
 )

@@ -30,7 +30,7 @@ class ErraticReturns:
             "status": "FAIL",
             "report": "Could not fetch requested information",
             "reason": "Command string could not be interpreted",
-            "time_of_retrieval": time.time()
+            "time_of_retrieval": time.time(),
         }
         return return_data
 
@@ -39,7 +39,7 @@ class ErraticReturns:
             "status": "FAIL",
             "report": "Could not fetch requested information",
             "reason": "Index file could not be accessed",
-            "time_of_retrieval": time.time()
+            "time_of_retrieval": time.time(),
         }
         return return_data
 
@@ -55,24 +55,21 @@ class TicketDataRetrieval(object):
             return_data = {
                 "status": "PASS",
                 "forges": {},
-                "time_of_retrieval": time.time()
+                "time_of_retrieval": time.time(),
             }
             for forge_name, forge in self.dictcont["forges"].items():
-                forge_info = {
-                    "name": forge_name,
-                    "repository_list": {}
-                }
+                forge_info = {"name": forge_name, "repository_list": {}}
                 for repository_name, repository in forge.items():
                     repository_info = {
                         "name": repository_name,
                         "description": repository["description"],
                         "contact": repository["contact"],
-                        "issue_list": {}
+                        "issue_list": {},
                     }
                     for issue_id, issue in repository["ticket_list"].items():
                         issue_info = {
                             "title": issue["title"],
-                            "labels": issue["labels"]
+                            "labels": issue["labels"],
                         }
                         repository_info["issue_list"][issue_id] = issue_info
                     forge_info[repository_name] = repository_info
@@ -82,7 +79,7 @@ class TicketDataRetrieval(object):
                 "status": "FAIL",
                 "report": "Could not fetch preliminary information",
                 "reason": str(expt),
-                "time_of_retrieval": time.time()
+                "time_of_retrieval": time.time(),
             }
         return return_data
 
@@ -92,18 +89,16 @@ class TicketDataRetrieval(object):
             return_data = {
                 "status": "PASS",
                 "forges": {},
-                "time_of_retrieval": time.time()
+                "time_of_retrieval": time.time(),
             }
             for forge in forge_list:
-                return_data["forges"][forge] = {
-                    "information": "/0/forges/%s" % forge
-                }
+                return_data["forges"][forge] = {"information": "/0/forges/%s" % forge}
         except KeyError as expt:
             return_data = {
                 "status": "FAIL",
                 "report": "Could not fetch the list of forges",
                 "reason": str(expt),
-                "time_of_retrieval": time.time()
+                "time_of_retrieval": time.time(),
             }
         return return_data
 
@@ -113,16 +108,16 @@ class TicketDataRetrieval(object):
                 "status": "PASS",
                 "forge": {
                     "name": forge,
-                    "repository_list": "/0/forges/%s/repositories" % forge
+                    "repository_list": "/0/forges/%s/repositories" % forge,
                 },
-                "time_of_retrieval": time.time()
+                "time_of_retrieval": time.time(),
             }
         except KeyError as expt:
             return_data = {
                 "status": "FAIL",
                 "report": "Could not fetch the forge information",
                 "reason": "No forge with that name exists within the index",
-                "time_of_retrieval": time.time()
+                "time_of_retrieval": time.time(),
             }
         return return_data
 
@@ -132,7 +127,7 @@ class TicketDataRetrieval(object):
             return_data = {
                 "status": "PASS",
                 "repositories": {},
-                "time_of_retrieval": time.time()
+                "time_of_retrieval": time.time(),
             }
             for repository in repository_list:
                 return_data["repositories"][repository] = {
@@ -143,7 +138,7 @@ class TicketDataRetrieval(object):
                 "status": "FAIL",
                 "report": "Could not fetch the list of repositories",
                 "reason": "No forge with that name exists within the index",
-                "time_of_retrieval": time.time()
+                "time_of_retrieval": time.time(),
             }
         return return_data
 
@@ -163,16 +158,17 @@ class TicketDataRetrieval(object):
                     "target_label": repository_info["target_label"],
                     "maintainer": repository_info["maintainer"],
                     "date_created": repository_info["date_created"],
-                    "issues": "/0/forges/%s/repositories/%s/issues" % (forge, repository)
+                    "issues": "/0/forges/%s/repositories/%s/issues"
+                    % (forge, repository),
                 },
-                "time_of_retrieval": time.time()
+                "time_of_retrieval": time.time(),
             }
         except KeyError as expt:
             return_data = {
                 "status": "FAIL",
                 "report": "Could not fetch repository information",
                 "reason": "No forge or repository with that name exists within the index",
-                "time_of_retrieval": time.time()
+                "time_of_retrieval": time.time(),
             }
         return return_data
 
@@ -182,26 +178,29 @@ class TicketDataRetrieval(object):
             return_data = {
                 "status": "PASS",
                 "issues": {},
-                "time_of_retrieval": time.time()
+                "time_of_retrieval": time.time(),
             }
             for issue in issue_list:
                 return_data["issues"][issue] = {
                     "title": issue_list[issue]["title"],
                     "url": issue_list[issue]["url"],
-                    "information": "/0/forges/%s/repositories/%s/issues/%s" % (forge, repository, issue)
+                    "information": "/0/forges/%s/repositories/%s/issues/%s"
+                    % (forge, repository, issue),
                 }
         except KeyError as expt:
             return_data = {
                 "status": "FAIL",
                 "report": "Could not fetch the list of issues",
                 "reason": "No forge or repository with that name exists within the index",
-                "time_of_retrieval": time.time()
+                "time_of_retrieval": time.time(),
             }
         return return_data
 
     def retrieve_issue_information(self, forge, repository, number):
         try:
-            issue_info = self.dictcont["forges"][forge][repository]["ticket_list"][number]
+            issue_info = self.dictcont["forges"][forge][repository]["ticket_list"][
+                number
+            ]
             return_data = {
                 "status": "PASS",
                 "issue": {
@@ -213,15 +212,15 @@ class TicketDataRetrieval(object):
                     "last_updated": issue_info["last_updated"],
                     "creator": issue_info["creator"],
                     "url": issue_info["url"],
-                    "labels": issue_info["labels"]
+                    "labels": issue_info["labels"],
                 },
-                "time_of_retrieval": time.time()
+                "time_of_retrieval": time.time(),
             }
         except KeyError as expt:
             return_data = {
                 "status": "FAIL",
                 "report": "Could not fetch issue information",
                 "reason": "No forge, repository or issue with that name exists within the index",
-                "time_of_retrieval": time.time()
+                "time_of_retrieval": time.time(),
             }
         return return_data

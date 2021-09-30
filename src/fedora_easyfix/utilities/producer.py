@@ -46,11 +46,10 @@ class Producer(object):
         self.pagure_api_key = self.envrvars["PAGURE_API_KEY"]
         self.gitlab_api_key = self.envrvars["GITLAB_API_KEY"]
         self.rplist_url = self.envrvars["RPLIST_URL"]
-        self.yamldict = load(httpobjc.request("GET", self.rplist_url).data.decode(), Loader=CLoader)
-        self.ticket_collection = {
-            "forges": {},
-            "time_of_retrieval": 0.0
-        }
+        self.yamldict = load(
+            httpobjc.request("GET", self.rplist_url).data.decode(), Loader=CLoader
+        )
+        self.ticket_collection = {"forges": {}, "time_of_retrieval": 0.0}
 
     def check_repolist_version_and_start(self):
         if self.yamldict["repolist_version"] == __version__:
@@ -59,7 +58,9 @@ class Producer(object):
             self.write_index_to_local_json()
         else:
             statdcrt.failure("Could not index tickets")
-            statdcrt.general("Repolist version does not correspond with the Easyfix version")
+            statdcrt.general(
+                "Repolist version does not correspond with the Easyfix version"
+            )
             sys.exit()
 
     def populate_ticket_collection(self):
@@ -67,38 +68,34 @@ class Producer(object):
             github_repository_list = self.yamldict["forges"]["github"]["repositories"]
             github_base_url = self.yamldict["forges"]["github"]["url"]
             statdcrt.warning(
-                "Found %s repositories on GitHub" %
-                len(self.yamldict["forges"]["github"]["repositories"].keys())
+                "Found %s repositories on GitHub"
+                % len(self.yamldict["forges"]["github"]["repositories"].keys())
             )
             self.ticket_collection["forges"]["github"] = GitHubRepositories(
                 github_repository_list,
                 github_base_url,
                 self.github_api_key,
-                self.github_username
+                self.github_username,
             ).return_repository_collection()
         if "pagure" in self.yamldict["forges"].keys():
             pagure_repository_list = self.yamldict["forges"]["pagure"]["repositories"]
             pagure_base_url = self.yamldict["forges"]["pagure"]["url"]
             statdcrt.warning(
-                "Found %s repositories on Pagure" %
-                len(self.yamldict["forges"]["pagure"]["repositories"].keys())
+                "Found %s repositories on Pagure"
+                % len(self.yamldict["forges"]["pagure"]["repositories"].keys())
             )
             self.ticket_collection["forges"]["pagure"] = PagureRepositories(
-                pagure_repository_list,
-                pagure_base_url,
-                self.pagure_api_key
+                pagure_repository_list, pagure_base_url, self.pagure_api_key
             ).return_repository_collection()
         if "gitlab" in self.yamldict["forges"].keys():
             gitlab_repository_list = self.yamldict["forges"]["gitlab"]["repositories"]
             gitlab_base_url = self.yamldict["forges"]["gitlab"]["url"]
             statdcrt.warning(
-                "Found %s repositories on GitLab" %
-                len(self.yamldict["forges"]["gitlab"]["repositories"].keys())
+                "Found %s repositories on GitLab"
+                % len(self.yamldict["forges"]["gitlab"]["repositories"].keys())
             )
             self.ticket_collection["forges"]["gitlab"] = GitLabRepositories(
-                gitlab_repository_list,
-                gitlab_base_url,
-                self.gitlab_api_key
+                gitlab_repository_list, gitlab_base_url, self.gitlab_api_key
             ).return_repository_collection()
 
     def write_index_to_local_json(self):
@@ -109,7 +106,9 @@ class Producer(object):
             statdcrt.section("Indexing complete!")
         except PermissionError as expt:
             statdcrt.failure("Could not index tickets")
-            statdcrt.general("Please check if appropriate permissions are available to write in the directory")
+            statdcrt.general(
+                "Please check if appropriate permissions are available to write in the directory"
+            )
             sys.exit()
 
 
@@ -120,15 +119,21 @@ def mainfunc():
         prodobjc.check_repolist_version_and_start()
     except KeyError as expt:
         statdcrt.failure("Could not index tickets")
-        statdcrt.general("Please check if the environment variables are configured properly")
+        statdcrt.general(
+            "Please check if the environment variables are configured properly"
+        )
         sys.exit()
     except NewConnectionError as expt:
         statdcrt.failure("Could not index tickets")
-        statdcrt.general("Please check if the repository listing is available in the specified location")
+        statdcrt.general(
+            "Please check if the repository listing is available in the specified location"
+        )
         sys.exit()
     except MaxRetryError as expt:
         statdcrt.failure("Could not index tickets")
-        statdcrt.general("Exceeded number of retries while attempting to fetch the repository listing")
+        statdcrt.general(
+            "Exceeded number of retries while attempting to fetch the repository listing"
+        )
         sys.exit()
     except KeyboardInterrupt as expt:
         print("\n", end="")
