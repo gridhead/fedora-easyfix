@@ -70,7 +70,9 @@ def return_repository_list(forge):
 @main.get("/0/forges/<string:forge>/repositories/<path:repository>/")
 def return_repository_information(forge, repository):
     try:
-        return_data = TicketDataRetrieval().retrieve_repository_information(forge, repository)
+        return_data = TicketDataRetrieval().retrieve_repository_information(
+            forge, repository
+        )
     except FileNotFoundError as expt:
         return_data = ErraticReturns().file_read_error_return_data()
     return jsonify(return_data)
@@ -85,10 +87,14 @@ def return_issue_list(forge, repository):
     return jsonify(return_data)
 
 
-@main.get("/0/forges/<string:forge>/repositories/<path:repository>/issues/<string:number>/")
+@main.get(
+    "/0/forges/<string:forge>/repositories/<path:repository>/issues/<string:number>/"
+)
 def return_issue_information(forge, repository, number):
     try:
-        return_data = TicketDataRetrieval().retrieve_issue_information(forge, repository, number)
+        return_data = TicketDataRetrieval().retrieve_issue_information(
+            forge, repository, number
+        )
     except FileNotFoundError as expt:
         return_data = ErraticReturns().file_read_error_return_data()
     return jsonify(return_data)
@@ -100,9 +106,23 @@ def mainpage():
 
 
 @click.command()
-@click.option("-p", "--portdata", "portdata", help="Set the port value [0-65536]", default="9696")
-@click.option("-6", "--ipprotv6", "netprotc", flag_value="ipprotv6", help="Start the server on an IPv6 address")
-@click.option("-4", "--ipprotv4", "netprotc", flag_value="ipprotv4", help="Start the server on an IPv4 address")
+@click.option(
+    "-p", "--portdata", "portdata", help="Set the port value [0-65536]", default="9696"
+)
+@click.option(
+    "-6",
+    "--ipprotv6",
+    "netprotc",
+    flag_value="ipprotv6",
+    help="Start the server on an IPv6 address",
+)
+@click.option(
+    "-4",
+    "--ipprotv4",
+    "netprotc",
+    flag_value="ipprotv4",
+    help="Start the server on an IPv4 address",
+)
 @click.version_option(version=__version__, prog_name="Fedora Easyfix")
 def mainfunc(portdata, netprotc):
     """
