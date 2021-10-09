@@ -44,7 +44,7 @@ A collection of self-contained and well-documented issues for newcomers to start
 #### Steps
 1. Clone the repository by executing `git clone https://github.com/t0xic0der/fedora-easyfix.git`.
 2. Make the local repository your current working directory by executing `cd fedora-easyfix/`.
-3. Build the image `podman build -t fedora-easyfix:1.0 -f Dockerfile`.
+3. Build the image `podman build . -f Dockerfile -t fedora-easyfix:latest`.
 4. Run
    - Run with default port options`podman run -it -d -p 9696:9696 fedora-easyfix:1.0`.                                   
    - Run with custom port options`podman run -it -d -p <Port number>:<Port number> fedora-easyfix:1.0 -4 -p <Port number>`.
