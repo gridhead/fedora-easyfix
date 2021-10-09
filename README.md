@@ -47,7 +47,7 @@ A collection of self-contained and well-documented issues for newcomers to start
 3. Build the image `podman build . -f Dockerfile -t fedora-easyfix:latest`.
 4. Run
    - Run with default port options `podman run -it -p 9696:9696 fedora-easyfix:latest -4`.
-   - Run with custom port options`podman run -it -d -p <Port number>:<Port number> fedora-easyfix:1.0 -4 -p <Port number>`.
+   - Run with custom port options `podman run -it -p <port number>:<port number> fedora-easyfix:latest -4 -p <port number>`.
 
 
 Detailed documentation would arrive shortly. Inconvenience is regretted.
