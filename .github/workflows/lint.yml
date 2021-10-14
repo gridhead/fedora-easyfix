@@ -12,4 +12,4 @@ jobs:
       - name: Install black
         run: pip install black
       - name: Run black
-        run: black .
+        run: black --check --diff .
