@@ -18,5 +18,3 @@ A collection of self-contained and well-documented issues for newcomers to start
    ```
 7. Run `index-easyfix-issues` being in the same directory to index the Easyfix relevant issues from a variety of Git forges.
 8. Run `start-easyfix-server -p 9696 -4` to start the Easyfix server.
-
-Detailed documentation would arrive shortly. Inconvenience is regretted.
